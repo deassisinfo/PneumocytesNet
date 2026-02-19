@@ -387,3 +387,108 @@ class IFNPI3K extends Equation {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+class BaseIFNMap extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[idx[IRF3_34]] - v[40], x[idx[FOXO3A_35]] - v[41], x[idx[NFKB_105]], x[idx[MAPK_p38_106]]), x[IFN_a_b]);
+	}
+	
+}
+
+class ViralInhIFNMap extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		//System.out.println(NFKB_105 + "\t" + "\t" + idx[NFKB_105] + "\t" + x[idx[NFKB_105]]);
+		return f(AVG(x[idx[IRF3_34]] - v[40], x[idx[FOXO3A_35]] - v[41], x[idx[NFKB_105]], x[idx[MAPK_p38_106]]) - AVG(x[idx[Viral_Repl_37]] - v[42]), x[IFN_a_b]);
+	}
+	
+}
+
+
+class MTORCInhIFNMap extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[idx[IRF3_34]] - v[40], x[idx[FOXO3A_35]] - v[41], x[idx[NFKB_105]], x[idx[MAPK_p38_106]]) - AVG(x[idx[mTORC1_36]] - v[43]), x[IFN_a_b]);
+	}
+	
+}
+
+class MTORCActIFNMap extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[idx[IRF3_34]] - v[40], x[idx[FOXO3A_35]] - v[41], x[idx[mTORC1_36]] - v[43], x[idx[NFKB_105]], x[idx[MAPK_p38_106]]), x[IFN_a_b]);
+	}
+	
+}
+
+class ViralAndMTORCInhIFNMap extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[idx[IRF3_34]] - v[40], x[idx[FOXO3A_35]] - v[41], x[idx[NFKB_105]], x[idx[MAPK_p38_106]]) - AVG(x[idx[mTORC1_36]] - v[43], x[idx[Viral_Repl_37]] - v[42]), x[IFN_a_b]);
+	}
+	
+}
+
+class ViralInhMTORCActIFNMap extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[idx[IRF3_34]] - v[40], x[idx[FOXO3A_35]] - v[41], x[idx[mTORC1_36]] - v[43], x[idx[NFKB_105]], x[idx[MAPK_p38_106]]) - AVG(x[idx[Viral_Repl_37]] - v[42]), x[IFN_a_b]);
+	}
+	
+}
+
+
+class ReducedViralRepmTORC extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[VIRUS], AND(x[mTOR], x[VIRUS])) - x[IFN_SG], x[REPLICATION]);
+	}
+	
+}
+
+class ReducedBaseViralRep extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(x[VIRUS] - x[IFN_SG], x[REPLICATION]);
+	}
+	
+}
+
+class ReducedViralInhIFN extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[RIG], x[Inflammation]) - x[REPLICATION], x[IFN_I]);
+	}
+	
+}
+
+class ReducedViralAndMTORCInhIFN extends Equation {
+
+	@Override
+	public int compute(int[] x, int[] idx) {
+		return f(AVG(x[RIG], x[Inflammation]) - AVG(x[REPLICATION], x[mTOR]), x[IFN_I]);
+	}
+	
+}
+
+
