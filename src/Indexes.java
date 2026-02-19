@@ -54,6 +54,33 @@ public abstract class Indexes {
 	public static final int PX478 = 50;
 	public static final int IL6_e = 51;
 	
+	public static final int Virus_i = 41;
+	
+	
+	
+	
+	
+	public static final int VIRUS = 0;
+	public static final int Inflammation = 1;
+	public static final int Stress = 2;
+	public static final int PI3K_AKT = 3;
+	public static final int mTOR = 4;
+	public static final int REPLICATION = 5;
+	public static final int IFN_R = 6;
+	public static final int IFN_SG = 7;
+	public static final int RIG = 8;
+	public static final int IFN_I = 9;
+	public static final int SIROLIMUS = 10;
+	
+	
+	public static final int[] REDUCED_NET = {
+			VIRUS, Inflammation, Stress, PI3K_AKT, mTOR, 
+			REPLICATION, IFN_R, IFN_SG, RIG, IFN_I, 
+			SIROLIMUS
+			
+	};
+	
+	
 	
 	
 	
@@ -64,25 +91,27 @@ public abstract class Indexes {
 			IKK_a_b, PTEN, Nutr_Depr, p53, AKT, 
 			CASP8, CASP9, NFKB, CREB_1, p53, 
 			FADD, p53, C_FLIP, FOXO3A, p53, 
-			ROS, BCL_2, NFKB, p53, AKT, 
-			AKT, Viral_Repl, TNFR, MAPK_p38, AMPK, 
-			IKK_a_b, AKT, ROS, Hypoxia, IRF3, 
-			FOXO3A, mTORC1, Viral_Repl, IFN_a_b, NFKB, 
-			MAPK_p38, mTORC1, RIG1, TLR4, TNFR, 
-			AKT, STAT1, Viral_Repl, ANG_2_T1R, TLR4, 
-			ROS, IKK_a_b, TSC2, PI3K, AMPK, 
-			IKK_a_b, IKK_a_b, ROS, FOXO3A, Hypoxia, 
-			AMPK, ROS, Viral_Repl, TLR4, ROS, 
-			IL6R, p53, ANG_2_T1R, TLR4, FOXO3A, 
-			p53, ADAM_17, IL6R, IFNR, ADAM_17, 
-			NFKB, MAPK_p38, mTORC1, AMPK, HIF_1a, 
-			AKT, mTORC1, ISG, ADAM_17, Viral_Repl, 
-			Virus, TNF, Virus, IL6, ANG_2, IFN_a_b,
-			PP242_e, mTORC1, 
+			ROS, BCL_2, NFKB, p53, AKT, //
+			AKT, Viral_Repl, TNFR, MAPK_p38, AMPK, //
+			IKK_a_b, AKT, ROS, Hypoxia, IRF3, //
+			FOXO3A, mTORC1, Viral_Repl, IFN_a_b, NFKB, //
+			MAPK_p38, mTORC1, RIG1, TLR4, TNFR, //
+			AKT, STAT1, Viral_Repl, ANG_2_T1R, TLR4, //
+			ROS, IKK_a_b, TSC2, PI3K, AMPK, //
+			IKK_a_b, IKK_a_b, ROS, FOXO3A, Hypoxia, //
+			AMPK, ROS, Viral_Repl, TLR4, ROS, //
+			IL6R, p53, ANG_2_T1R, TLR4, FOXO3A, //
+			p53, ADAM_17, IL6R, IFNR, ADAM_17, //
+			NFKB, MAPK_p38, mTORC1, AMPK, HIF_1a, //
+			AKT, mTORC1, ISG, ADAM_17, Viral_Repl, //
+			Virus, TNF, Virus, IL6, ANG_2, //
+			IFN_a_b, mTORC1, 
 			
 			TNFR, IKK_a_b, IL6R, AKT, AKT, 
 			AKT, AKT, IKK_a_b, IKK_a_b, AMPK,
-			AMPK, p53, IKK_a_b
+			AMPK, p53, IKK_a_b,
+			
+			NFKB, MAPK_p38, TLR4, Viral_Repl, Viral_Repl
 	};
 	
 	private static final int[] IDXFit = new int[] { //5 per line
@@ -126,8 +155,9 @@ public abstract class Indexes {
 			p53, ADAM_17, IL6R, IFNR, ADAM_17, 
 			NFKB, MAPK_p38, mTORC1, AMPK, HIF_1a, 
 			AKT, mTORC1, ISG, ADAM_17, Viral_Repl, 
-			Virus, TNF, Virus, IL6, ANG_2, IFN_a_b,
-			Hypoxia, mTORC1,
+			Virus, TNF, Virus, IL6, ANG_2, 
+			IFN_a_b, Hypoxia, mTORC1,
+			
 			TNFR, IKK_a_b, IL6R, AKT, AKT, 
 			AKT, AKT, IKK_a_b, IKK_a_b, AMPK,
 			AMPK, p53, IKK_a_b
@@ -302,6 +332,12 @@ public abstract class Indexes {
 	public static final int AMPK_102 = 102;
 	public static final int p53_103 = 103;
 	public static final int IKK_a_b_104 = 104;
+	
+	public static final int NFKB_105 = 105;
+	public static final int MAPK_p38_106 = 106;
+	public static final int TLR4_107 = 107;
+	public static final int Viral_Repl_108 = 108;
+	public static final int Viral_Repl_109 = 109;
 	
 	
 	
