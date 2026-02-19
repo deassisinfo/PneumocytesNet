@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -75,18 +76,39 @@ public class Exec {
 	public static boolean run60 = false;
 	
 	
-	private static String path = "/Users/henriquedeassis/Documents/Projects/publications/Achyudhan/data/";
+	private static String path = "/Users/deassis/Documents/Projects/publications/Achyudhan/data/";
 	private static double sigma = 1.96;//CHANGED HERE!!!
 	private static int bnIterations = QN.N_ITER;
 	private static int sampleSize = SAMPLE_SIZE;
 	private static int ensembleSize = ENS_SIZE;
 	
 	private static boolean fit = false;
+	private static boolean map = false;
+	private static boolean reduced = false;
 	private static int bnSize = QN.QN_SIZE;
 	
 	
 	public static void useFit(boolean fit) {
+		Exec.map = false;
+		Exec.reduced = false;
+		Exec.bnSize = QN.QN_SIZE;
 		Exec.fit = fit;
+	}
+	
+	public static void useMap(boolean map) {
+		Exec.fit = false;
+		Exec.qn2 = false;
+		Exec.reduced = false;
+		Exec.bnSize = QN.QN_SIZE;
+		Exec.map = map;
+	}
+	
+	public static void useReduced() {
+		Exec.fit = false;
+		Exec.qn2 = false;
+		Exec.map = false;
+		Exec.bnSize = Reduced.QN_SIZE;
+		Exec.reduced = true;
 	}
 	
 	public static void setPath(String path) {
@@ -121,7 +143,7 @@ public class Exec {
 		
 		Equation ang = new Zero();
 		Equation hif = ko == HIF_KO ? new Zero() : new HIF();
-		Equation ifn = new BaseIFN();
+		Equation ifn = map ? new BaseIFNMap() : new BaseIFN();
 		Equation il6 = new BaseIL6();
 		Equation isg = new BaseISG();
 		Equation tnf = new BaseTNF();
@@ -134,23 +156,65 @@ public class Exec {
 		}
 		
 		
+		Equation rvir = null;
+		Equation rifn = null;
+		
 		if(type == NET_SCENARIO_1) { //mTORC1 -> vir-rep
-			ifn = new ViralInhIFN();
+			if(map) {
+				ifn = new ViralInhIFNMap();
+			}else {
+				ifn = new ViralInhIFN();
+			}
 			isg = new ViralInhISG();
 			vir = new ViralRepmTORC();
+			
+			
+			rifn = new ReducedViralInhIFN();
+			rvir = new ReducedViralRepmTORC();
+			
 		} else if(type == NET_SCENARIO_3) { //mTORC1 -| IFN
 			//ifn = new ViralInhIFN();
-			isg = new ViralInhISG();
-			ifn = new ViralAndMTORCInhIFN();
+			if(map) {
+				isg = new ViralInhISG();
+				ifn = new ViralAndMTORCInhIFNMap();
+			}else {
+				isg = new ViralInhISG();
+				ifn = new ViralAndMTORCInhIFN();
+			}
+			
+			
+			rifn = new ReducedViralAndMTORCInhIFN();
+			rvir = new ReducedBaseViralRep();
+			
 			//p3k = new IFNPI3K();
 		} else if(type == NET_SCENARIO_2) {//mTORC1 -| IFN & mTORC1 -> vir-rep
-			ifn = new ViralAndMTORCInhIFN();
-			isg = new ViralInhISG();
-			vir = new ViralRepmTORC();
+			if(map) {
+				ifn = new ViralAndMTORCInhIFNMap();
+				isg = new ViralInhISG();
+				vir = new ViralRepmTORC();
+			}else {
+				ifn = new ViralAndMTORCInhIFN();
+				isg = new ViralInhISG();
+				vir = new ViralRepmTORC();
+			}
+			
+			
+			rifn = new ReducedViralAndMTORCInhIFN();
+			rvir = new ReducedViralRepmTORC();
+			
 			//p3k = new IFNPI3K();
 		} else if(type == NET_SCENARIO_4) { //None
-			ifn = new ViralInhIFN();
-			isg = new ViralInhISG();
+			if(map) {
+				ifn = new ViralInhIFNMap();
+				isg = new ViralInhISG();
+			}else {
+				ifn = new ViralInhIFN();
+				isg = new ViralInhISG();
+			}
+			
+			
+			rifn = new ReducedViralInhIFN();
+			rvir = new ReducedBaseViralRep();
 			//ifn = new ViralInhMTORCActIFN();
 			/*ifn = new ViralInhMTORCActIFN();
 			isg = new ViralInhISG();
@@ -162,10 +226,13 @@ public class Exec {
 		
 		vir = ko == NO_VIR_REP ? new Zero() : vir;
 		QN qn = null;
-		
-		if(qn2)qn = new QN2(new Equation[] {ang, hif, ifn, il6, isg, tnf, vir, p3k});
+		if(reduced) {
+			return new Reduced(new Equation[] {rifn, rvir});
+		}
+		if(map)qn = new QN4(new Equation[] {ang, hif, ifn, il6, isg, tnf, vir, p3k});
+		else if(qn2)qn = new QN2(new Equation[] {ang, hif, ifn, il6, isg, tnf, vir, p3k});
 		else qn = new QN(new Equation[] {ang, hif, ifn, il6, isg, tnf, vir, p3k});
-		qn.setFit(fit);
+		if(!map)qn.setFit(fit);
 		return qn;
 	}
 	
@@ -176,6 +243,21 @@ public class Exec {
 	public static int[] inputFactory(int[] input, int type) {
 		if(input == null)
 			input = new int[bnSize];
+		
+		if(bnSize == Reduced.QN_SIZE) {
+			
+			if(type == IN_INFECTED) 
+				input[Indexes.VIRUS] = 1;
+			else if(type == IN_INFECTED_SIROLIMUS) {
+				input[Indexes.VIRUS] = 1;
+				input[Indexes.SIROLIMUS] = 1;
+			}else if(type == IN_SIROLIMUS) {
+				input[Indexes.SIROLIMUS] = 1;
+				input[Indexes.VIRUS] = 0;
+			}
+			
+			return input;
+		}
 		
 		if(type == IN_INFECTED) 
 			input[Indexes.Virus] = 1;
@@ -260,6 +342,30 @@ public class Exec {
 		
 		return result;
 	}
+	
+	private static List<double[][]> run(QN qn, int inputType, int k, int[] idx) {
+		//System.out.println(qn);
+		
+		List<double[][]> result = new ArrayList<>(); //mat1 == all the last-lines; mat2 == all the last but one line
+		List<double[]> list = null;
+		
+		double[][] mat1 = new double[k][];
+		double[][] mat2 = new double[k][];
+		
+		for(int i = 0; i < k; i++) {
+			list = run(qn, idx, inputType);
+			mat1[i] = list.get(0);
+			mat2[i] = list.get(1);
+		}
+		
+		result.add(mat1);
+		result.add(mat2);
+		
+		return result;
+	}
+	
+	
+
 	
 	private static List<double[]> run(QN qn, int[] idx, int inputType) {
 		
@@ -392,7 +498,6 @@ public class Exec {
 		
 		return result;
 	}
-	
 	
 	
 	
@@ -632,6 +737,145 @@ public class Exec {
 	}
 	
 	
+	public static void printSingle(int netType, int inputType, int iterations, int[] idx, File file, File file0) throws FileNotFoundException {
+		List<double[][]> list = run(networkFactory(netType), inputType, iterations, idx);
+		
+		double[][] result = list.get(1);
+		double[][] result0 = list.get(0);
+		
+		if(file == null) {
+			for(double[] mat : result) {
+				System.out.print("c(");
+				for(int i = 0; i < QN.QN_SIZE; i++) {
+					if(i == (QN.QN_SIZE-1))
+						System.out.print(mat[i]);
+					else
+						System.out.print(mat[i] + ", ");
+				}
+				System.out.println("),");
+			}
+		}else {
+			PrintWriter pw = new PrintWriter(file);
+			for(double[] mat : result) {
+				for(int i = 0; i < QN.QN_SIZE; i++) {
+					if(i == (QN.QN_SIZE-1))
+						pw.print(mat[i]);
+					else
+						pw.print(mat[i] + ", ");
+				}
+				pw.println();
+			}
+			pw.close();
+		}
+		if(file !=null) {
+			PrintWriter pw = new PrintWriter(file0);
+			for(double[] mat : result0) {
+				for(int i = 0; i < QN.QN_SIZE; i++) {
+					if(i == (QN.QN_SIZE-1))
+						pw.print(mat[i]);
+					else
+						pw.print(mat[i] + ", ");
+				}
+				pw.println();
+			}
+			pw.close();
+		}
+		
+	}
+	
+	
+	public static int[] convergence(int netType, int inputType, boolean shuffle, File file) throws FileNotFoundException {
+		
+		QN qn = networkFactory(netType);
+		int[] idx = Indexes.getIndex(fit);
+		if(shuffle) qn.shuffle(idx);
+		
+		double[][] bn  = new double[bnIterations][bnSize];
+		double[][] nbn = new double[bnIterations][bnSize];
+		
+		int[] x = null;
+		
+		for(int j = 0; j < ensembleSize; j++) {
+			x = new int[bnSize];
+			qn.compute(x, idx);
+			if(run60)qn.compute(x, idx);
+			Utils.add(bn, qn.getResults());	
+
+			int[] y = inputFactory(x, inputType);
+			qn.compute(y, idx);
+			Utils.add(nbn, qn.getResults());
+		}
+		
+		Utils.div(bn,  ensembleSize);
+		Utils.div(nbn, ensembleSize);
+		
+		
+		nbn = Utils.sub(bn, nbn);
+		
+		int lastJ = QN.QN_SIZE - 1;
+		int lastI = bnIterations - 1;
+//		double eps = 1e-16;
+		double[] mean = new double[QN.QN_SIZE];
+		double[] std = new double[QN.QN_SIZE];
+		
+		
+		
+		if(file == null) {
+			for(int i = 15; i < bnIterations; i++) {
+				System.out.print("c(");
+				for(int j = 0; j < QN.QN_SIZE; j++) {
+					if(j == lastJ)
+						System.out.print(nbn[i][j]);
+					else
+						System.out.print(nbn[i][j] + ", ");
+					
+				}
+				if(i == lastI)
+					System.out.println(")");
+				else
+					System.out.println("),");
+			}
+		}else {
+			PrintWriter pw = new PrintWriter(file);
+			for(int i = 0; i < bnIterations; i++) {
+				for(int j = 0; j < QN.QN_SIZE; j++) {
+					if(j == lastJ)
+						pw.print(nbn[i][j]);
+					else
+						pw.print(nbn[i][j] + ", ");
+					
+				}
+				pw.println();
+
+			}
+			pw.close();
+		}
+		
+		return idx;
+		
+//		System.out.print("c(");
+//		for(int j = 0; j < QN.QN_SIZE; j++) {
+//			for(int i = 14; i < (bnIterations-1); i++) {
+//				mean[j] += nbn[i+1][j]-nbn[i][j];
+//			}
+//			mean[j] /= 15.0;
+//			System.out.print(mean[j] + ", ");
+//		}
+//		System.out.println(")");
+//		
+//		System.out.print("c(");
+//		for(int j = 0; j < QN.QN_SIZE; j++) {
+//			for(int i = 14; i < (bnIterations-1); i++) {
+//				std[j] += Math.pow((nbn[i+1][j]-nbn[i][j]) - mean[j], 2.0);
+//			}
+//			std[j] = Math.sqrt(std[j]/15.0);
+//			System.out.print(std[j] + ", ");
+//		}
+//		System.out.println(")");
+	}
+	
+	
+	
 	public static void runSirolimus(int inputType, int k) {
 		System.out.println("runSirolimus");
 
@@ -655,9 +899,9 @@ public class Exec {
 			double[][] r = result.get(0);
 			j = 0;
 			for(double[] mat : r) {
-				mtorc1[j] = mat[QN.mTORC1];
-				ifn[j] = mat[QN.IFN_a_b];
-				viralRep[j] = mat[QN.Viral_Repl];
+				mtorc1[j] = mat[reduced ? Reduced.mTOR : QN.mTORC1];
+				ifn[j] = mat[reduced ? Reduced.IFN_I : QN.IFN_a_b];
+				viralRep[j] = mat[reduced ? Reduced.REPLICATION : QN.Viral_Repl];
 				j++;
 			}
 			System.out.print("mtorc_" + inputType + "_" + netTypes[i] + " = ");
