@@ -84,7 +84,8 @@ public class QN extends Equation {
 			for(int caseName : net) {
 			    switch (caseName) {
 			    case ACE2: 
-			    	x[ACE2] = act(ko[0], f(AVG(AND(NOT(x[idx[Virus_0]]), x[idx[ACE2_1]]) - v[0]) - AVG(x[idx[ADAM_17_83]] - v[1]), x[ACE2]));
+			    	//x[ACE2] = act(ko[0], f(AVG(AND(NOT(x[idx[Virus_0]]), x[idx[ACE2_1]]) - v[0]) - AVG(x[idx[ADAM_17_83]] - v[1]), x[ACE2]));
+			    	x[ACE2] = act(ko[0], f(AVG(x[idx[ACE2_1]] - v[0]) - AVG(x[idx[ADAM_17_83]] - v[1], x[idx[Virus_0]]), x[ACE2]));
 			        break;
 			    case ADAM_17:
 			    	if(fit)
